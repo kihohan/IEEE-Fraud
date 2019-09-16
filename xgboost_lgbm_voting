@@ -1,0 +1,31 @@
+from xgboost import XGBClassifier
+from sklearn.metrics import roc_auc_score
+
+# n_estimators는 500으로, random state는 예제 수행 시마다 동일 예측 결과를 위해 설정. 
+xgb_clf = XGBClassifier(n_estimators=500, random_state=156)
+
+# 성능 평가 지표를 auc로, 조기 중단 파라미터는 100으로 설정하고 학습 수행. 
+xgb_clf.fit(Train_X, Train_Y, early_stopping_rounds=100,
+            eval_metric="auc", eval_set=[(Train_X, Train_Y), (Test_X, Test_Y)])
+
+xgb_roc_score = roc_auc_score(Test_Y, xgb_clf.predict_proba(Test_X)[:,1],average='macro')
+print('ROC AUC: {0:.4f}'.format(xgb_roc_score))
+
+from lightgbm import LGBMClassifier
+# Train_X, Test_X, Train_Y, Test_Y 
+lgbm_clf = LGBMClassifier(n_estimators=500)
+
+evals = [(Test_X, Test_Y)]
+lgbm_clf.fit(Train_X, Train_Y, early_stopping_rounds=100, eval_metric="auc", eval_set=evals,
+                verbose=True)
+
+lgbm_roc_score = roc_auc_score(Test_Y, lgbm_clf.predict_proba(Test_X)[:,1],average='macro')
+print('ROC AUC: {0:.4f}'.format(lgbm_roc_score))
+
+from sklearn.ensemble import VotingClassifier 
+
+vo_clf = VotingClassifier(estimators = [('XGB', xgb_clf),('LGBM', lgbm_clf)],
+                          voting = 'soft',weights = [3,2])
+vo_clf.fit(Train_X, Train_Y)
+predicted = vo_clf.predict(Test_X)
+print (roc_auc_score(Test_Y, predicted))
