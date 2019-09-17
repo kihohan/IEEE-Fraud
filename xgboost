@@ -5,20 +5,28 @@ Train_Y_array = np.array(Train_Y)
 Test_X_array = np.array(Test_X)
 Test_Y_array = np.array(Test_Y)
 # 파라미터
-params = { 'max_depth':3,
+params = { 'n_estimators' : 512,
+           'max_depth': 23,
+           'learning_rate' : 0.05,
+           'eval_metric': 'auc',
+           'subsample' : 0.9,
+           'n_jobs' : 2, # 멀티프로세싱
+           'colsample_bytree' : 0.9,
            'eta': 0.1,
            'objective':'binary:logistic',
            'eval_metric':'logloss',
+           'tree_method' : 'gpu_hist',
+           'device': 'gpu',
+           'reg_alpha' : 0.3,
+           'seed': 13,
            'early_stoppings':100
         }
-num_rounds = 400
+num_rounds = 1000
 # 이렇게 바꿔줘야된다함
 dtrain = xgb.DMatrix(data = Train_X_array, label = Train_Y_array)
 dtest = xgb.DMatrix(data = Test_X_array, label = Test_Y_array)
 # 이건 뭔지 모르겟음
 wlist = [(dtrain,'train'),(dtest,'eval') ]
 # 모델 만들기
-model = xgb.train(params = params , dtrain=dtrain , num_boost_round=num_rounds , evals=wlist )
-predicted = xgb_model.predict(dtest)
-from sklearn.metrics import * 
-print (roc_auc_score(Test_Y_array, predicted))
+model = xgb.train(params = params , dtrain=dtrain , num_boost_round=num_rounds,
+                  evals = wlist )
