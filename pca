@@ -1,5 +1,0 @@
-from sklearn.decomposition import PCA
-
-pca = PCA(n_components = 3)
-iris_pca = pca.transform(df)
-# 상관관계 and 원핫인코딩 결과
