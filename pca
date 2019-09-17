@@ -1,0 +1,5 @@
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components = 100)
+pca.fit(Train_X)
+Train_X = pca.transform(Train_X)
