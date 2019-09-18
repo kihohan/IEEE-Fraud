@@ -1,0 +1,2 @@
+etc_columns = [s for s in df.columns if "etc" in s]
+del_etc = df.drop(etc_columns, axis = 1)
